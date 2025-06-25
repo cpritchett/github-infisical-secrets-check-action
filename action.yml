@@ -55,13 +55,13 @@ runs:
       shell: bash
       run: |
         echo "🔍 Fetching latest Infisical CLI version..."
-        JSON=$(curl -s https://api.github.com/repos/Infisical/infisical/releases/latest)
-        TAG_NAME=$(echo "$JSON" | jq -r '.tag_name')
+        JSON=$(curl -s https://api.github.com/repos/Infisical/infisical/releases)
+        TAG_NAME=$(echo "$JSON" | jq -r '.[] | select(.tag_name | startswith("infisical-cli/v")) | .tag_name' | head -n 1)
         
         # Check if we got a valid response
         if [[ "$TAG_NAME" == "null" || -z "$TAG_NAME" ]]; then
           echo "❌ Failed to fetch latest version from GitHub API"
-          echo "Response: $JSON"
+          echo "Response: $JSON" # This might be very long if the releases page was fetched
           echo "FETCH_FAILED=true" >> $GITHUB_ENV
           exit 1
         fi
